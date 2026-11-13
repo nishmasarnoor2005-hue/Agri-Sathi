@@ -21,7 +21,9 @@ class Config:
     CARTESIA_API_KEY = os.getenv("CARTESIA_API_KEY")  # For Cartesia TTS (backup)
     # GOOGLE_TTS_API_KEY = os.getenv("GOOGLE_TTS_API_KEY")  # For Google STT/TTS
     DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")  # For Deepgram STT/TTS
-    WEATHER_API_KEY = os.getenv("WEATHER_API_KEY") or os.getenv("OPENWEATHERMAP_API_KEY") or "30e1bb5017240d0ab32be68eea525ba1"  # OpenWeatherMap
+    # Weather & Agri Monitoring API
+    AGRO_API_KEY = os.getenv("AGRO_API_KEY") or "5254dacacec80c9ea60335bf302bd46c"
+    WEATHER_API_KEY = os.getenv("WEATHER_API_KEY") or os.getenv("OPENWEATHERMAP_API_KEY") or "30e1bb5017240d0ab32be68eea525ba1"
     
     # Logic Configuration
     MAX_CALL_DURATION = 200  # 200 seconds 😮‍💨
