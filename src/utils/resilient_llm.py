@@ -339,18 +339,15 @@ def build_resilient_llm() -> ResilientAutoSwitchLLM:
 
     # 2. Add Cross-Provider Groq Pool (Multiple keys for continuous conversation)
     groq_keys: List[str] = []
-    groq_vars = [
-        "GROQ_API_KEY",
-        "GROQ_API_KEY_2",
-        "GROQ_API_KEY_3",
-        "GROQ_API_KEY_4",
-        "GROQ_API_KEY_11",
-        "GROQ_API_KEY_12",
-        "GROQ_API_KEY_13",
-    ]
-    for k in os.environ.keys():
-        if k.startswith("GROQ_API_KEY") and k not in groq_vars:
-            groq_vars.append(k)
+    groq_vars = [k for k in os.environ.keys() if k.startswith("GROQ_API_KEY")]
+
+    def _groq_key_sort(name: str) -> int:
+        parts = name.split("_")
+        if len(parts) >= 4 and parts[3].isdigit():
+            return int(parts[3])
+        return 1
+
+    groq_vars.sort(key=_groq_key_sort)
 
     for var in groq_vars:
         val = os.getenv(var)
