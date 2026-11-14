@@ -106,32 +106,75 @@
                         </span>
                     </div>
 
+                    <!-- Browser Detection & Farmer Profile Status Banner -->
+                    <div id="browserProfileBanner" class="mb-5 p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <span id="browserProfileIcon" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold">🌱</span>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h4 id="browserProfileTitle" class="text-xs font-bold text-white">Detecting Browser Profile...</h4>
+                                        <span id="browserProfilePill" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">New Browser</span>
+                                    </div>
+                                    <p id="browserProfileDesc" class="text-[11px] text-slate-400 mt-0.5">Checking your browser session storage...</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="resetBrowserProfile()" class="text-[11px] bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-600 transition flex items-center gap-1" title="Simulate opening a new browser session">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i> <span>Reset Profile</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Location Permission & Storage Card -->
+                    <div id="locationCard" class="mb-5 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 relative overflow-hidden">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-start space-x-2.5">
+                                <div id="locationIconBox" class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i id="locationIcon" data-lucide="map-pin" class="w-4 h-4 animate-pulse"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs font-bold text-white">Registered Location</span>
+                                        <span id="locationStatusPill" class="text-[10px] px-2 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30">Requesting...</span>
+                                    </div>
+                                    <p id="locationText" class="text-[11px] text-slate-400 mt-0.5">Requesting browser location permission to detect your farming location...</p>
+                                    <div id="locationCoords" class="hidden font-mono text-[10px] text-slate-500 mt-1"></div>
+                                </div>
+                            </div>
+                            <button id="retryLocationBtn" type="button" onclick="requestLocationPermission()" class="hidden text-[11px] bg-emerald-600/80 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg transition shrink-0 flex items-center gap-1">
+                                <i data-lucide="crosshair" class="w-3 h-3"></i> <span>Allow Location</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Caller Information Input -->
                     <div id="callerInputs" class="space-y-4 mb-6">
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                                 <span>Farmer Phone Number</span>
-                                <button type="button" onclick="generateRandomPhone()" class="text-[11px] text-emerald-400 hover:text-emerald-300 font-normal underline flex items-center gap-1">
-                                    <i data-lucide="shuffle" class="w-3 h-3"></i> 🎲 Random Number
-                                </button>
+                                <span class="text-[10px] text-slate-400 font-mono">Bound to this Browser</span>
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i data-lucide="phone" class="w-4 h-4"></i>
                                 </div>
-                                <input type="text" id="phoneInput" value="+919876543210" placeholder="+919876543210" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono" />
+                                <input type="text" id="phoneInput" value="" placeholder="+9198XXXXXXXX" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono" />
                             </div>
-                            <p class="text-[11px] text-slate-500 mt-1">Profile, past crops & interaction history are mapped to this caller ID.</p>
+                            <p class="text-[11px] text-slate-500 mt-1">Unique farmer identity automatically assigned to this browser session.</p>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Farmer Name (Optional)</label>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                                <span>Farmer Name</span>
+                                <span id="nameStatusHint" class="text-[10px] text-amber-400">Enter name or state when calling</span>
+                            </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i data-lucide="user" class="w-4 h-4"></i>
                                 </div>
-                                <input type="text" id="nameInput" value="Ramesh Kumar" placeholder="e.g. Ramesh Kumar" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                                <input type="text" id="nameInput" value="" placeholder="Enter your name (e.g. Ramesh Kumar)" onchange="onNameInputChanged()" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                             </div>
+                            <p class="text-[11px] text-slate-500 mt-1">If left empty, AgriSathi will ask for your name as soon as the call connects.</p>
                         </div>
                     </div>
 
@@ -569,12 +612,248 @@
             box.scrollTop = box.scrollHeight;
         }
 
+        // ==========================================
+        // BROWSER & LOCATION MANAGEMENT
+        // ==========================================
+        let currentFarmerPhone = "";
+        let currentFarmerLocation = null;
+
+        function initBrowserSession() {
+            // Check if this browser already has a farmer phone registered in localStorage
+            let storedPhone = localStorage.getItem('agrisathi_browser_phone');
+            let storedName = localStorage.getItem('agrisathi_farmer_name') || "";
+            let storedPlace = localStorage.getItem('agrisathi_farmer_place') || "";
+            let storedState = localStorage.getItem('agrisathi_farmer_state') || "";
+
+            const icon = document.getElementById('browserProfileIcon');
+            const title = document.getElementById('browserProfileTitle');
+            const pill = document.getElementById('browserProfilePill');
+            const desc = document.getElementById('browserProfileDesc');
+            const phoneInput = document.getElementById('phoneInput');
+            const nameInput = document.getElementById('nameInput');
+            const nameHint = document.getElementById('nameStatusHint');
+
+            if (!storedPhone) {
+                // NEW BROWSER DETECTED!
+                const randSuffix = Math.floor(10000000 + Math.random() * 90000000);
+                storedPhone = `+9198${randSuffix}`;
+                localStorage.setItem('agrisathi_browser_phone', storedPhone);
+                localStorage.removeItem('agrisathi_farmer_name');
+                localStorage.removeItem('agrisathi_farmer_place');
+                localStorage.removeItem('agrisathi_farmer_state');
+
+                if (icon) icon.innerText = "🌱";
+                if (title) title.innerText = "New Farmer (New Browser)";
+                if (pill) {
+                    pill.innerText = "New Browser";
+                    pill.className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30";
+                }
+                if (desc) desc.innerText = "First time on this browser. Please enter your name, or AgriSathi will ask on call.";
+                
+                if (phoneInput) phoneInput.value = storedPhone;
+                if (nameInput) nameInput.value = "";
+                if (nameHint) {
+                    nameHint.innerText = "Required for new farmer";
+                    nameHint.className = "text-[10px] text-amber-400 font-medium";
+                }
+            } else {
+                // RETURNING BROWSER DETECTED!
+                if (phoneInput) phoneInput.value = storedPhone;
+                if (nameInput) nameInput.value = storedName;
+
+                if (icon) icon.innerText = "🌾";
+                if (title) title.innerText = storedName ? `Farmer: ${storedName} ji` : "Returning Farmer";
+                if (pill) {
+                    pill.innerText = "Returning Browser";
+                    pill.className = "text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-semibold border border-blue-500/30";
+                }
+                
+                if (desc) {
+                    if (storedPlace) {
+                        desc.innerText = `Registered in ${storedPlace}${storedState ? ', ' + storedState : ''}. Call ID: ${storedPhone}`;
+                    } else {
+                        desc.innerText = `Welcome back! Call ID: ${storedPhone}`;
+                    }
+                }
+
+                if (nameHint && storedName) {
+                    nameHint.innerText = "Saved to Profile";
+                    nameHint.className = "text-[10px] text-emerald-400 font-medium";
+                }
+            }
+
+            currentFarmerPhone = storedPhone;
+            lucide.createIcons();
+        }
+
+        function resetBrowserProfile() {
+            if (confirm("Reset browser identity? This will treat this browser as a brand new farmer and ask for your name again.")) {
+                localStorage.removeItem('agrisathi_browser_phone');
+                localStorage.removeItem('agrisathi_farmer_name');
+                localStorage.removeItem('agrisathi_farmer_place');
+                localStorage.removeItem('agrisathi_farmer_state');
+                initBrowserSession();
+                requestLocationPermission();
+            }
+        }
+
+        async function onNameInputChanged() {
+            const nameInput = document.getElementById('nameInput');
+            const phoneInput = document.getElementById('phoneInput');
+            const name = nameInput ? nameInput.value.trim() : "";
+            const phone = (phoneInput && phoneInput.value.trim()) || currentFarmerPhone;
+            const nameHint = document.getElementById('nameStatusHint');
+
+            if (name && phone) {
+                localStorage.setItem('agrisathi_farmer_name', name);
+                if (nameHint) {
+                    nameHint.innerText = "Saving to database...";
+                    nameHint.className = "text-[10px] text-amber-400 font-medium";
+                }
+                try {
+                    await fetch('/api/farmer/name', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phone, name })
+                    });
+                    if (nameHint) {
+                        nameHint.innerText = "Saved to Profile";
+                        nameHint.className = "text-[10px] text-emerald-400 font-medium";
+                    }
+                    const title = document.getElementById('browserProfileTitle');
+                    if (title) title.innerText = `Farmer: ${name} ji`;
+                } catch (e) {
+                    console.warn("Failed to auto-save name:", e);
+                }
+            }
+        }
+
+        // ==========================================
+        // LOCATION DETECTION & STORAGE
+        // ==========================================
+        function requestLocationPermission() {
+            const iconBox = document.getElementById('locationIconBox');
+            const pill = document.getElementById('locationStatusPill');
+            const text = document.getElementById('locationText');
+            const coords = document.getElementById('locationCoords');
+            const retryBtn = document.getElementById('retryLocationBtn');
+
+            if (!navigator.geolocation) {
+                if (pill) {
+                    pill.innerText = "Not Supported";
+                    pill.className = "text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700";
+                }
+                if (text) text.innerText = "Geolocation is not supported by your browser. Defaulting to regional weather.";
+                if (retryBtn) retryBtn.classList.add('hidden');
+                return;
+            }
+
+            if (iconBox) iconBox.className = "w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5";
+            if (pill) {
+                pill.innerText = "Requesting...";
+                pill.className = "text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30 animate-pulse";
+            }
+            if (text) text.innerText = "Please click 'Allow' on the browser prompt to detect your farming location...";
+            if (coords) coords.classList.add('hidden');
+            if (retryBtn) retryBtn.classList.add('hidden');
+
+            navigator.geolocation.getCurrentPosition(
+                onLocationSuccess,
+                onLocationError,
+                { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+            );
+        }
+
+        async function onLocationSuccess(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const phoneInput = document.getElementById('phoneInput');
+            const phone = (phoneInput && phoneInput.value.trim()) || currentFarmerPhone;
+
+            const iconBox = document.getElementById('locationIconBox');
+            const pill = document.getElementById('locationStatusPill');
+            const text = document.getElementById('locationText');
+            const coords = document.getElementById('locationCoords');
+            const retryBtn = document.getElementById('retryLocationBtn');
+
+            if (text) text.innerText = "Location detected! Registering into farmer database...";
+            if (coords) {
+                coords.innerText = `GPS: ${lat.toFixed(4)}°, ${lon.toFixed(4)}° (Accuracy: ${Math.round(position.coords.accuracy)}m)`;
+                coords.classList.remove('hidden');
+            }
+
+            try {
+                const res = await fetch('/api/farmer/location', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, latitude: lat, longitude: lon })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const place = data.place || "Detected Location";
+                    const state = data.state || "";
+
+                    localStorage.setItem('agrisathi_farmer_place', place);
+                    localStorage.setItem('agrisathi_farmer_state', state);
+
+                    if (iconBox) iconBox.className = "w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5";
+                    if (pill) {
+                        pill.innerText = "Registered";
+                        pill.className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30";
+                    }
+                    if (text) text.innerHTML = `<strong class="text-white">${place}</strong>${state ? ', ' + state : ''} <span class="text-emerald-400 font-semibold">• Saved as Farmer Location</span>`;
+                    if (retryBtn) retryBtn.classList.add('hidden');
+
+                    currentFarmerLocation = { place, state, lat, lon };
+
+                    // Refresh returning farmer banner description
+                    const desc = document.getElementById('browserProfileDesc');
+                    if (desc && localStorage.getItem('agrisathi_browser_phone')) {
+                        desc.innerText = `Registered in ${place}${state ? ', ' + state : ''}. Call ID: ${phone}`;
+                    }
+                } else {
+                    throw new Error("Failed to register location on server");
+                }
+            } catch (err) {
+                console.warn("Location registration error:", err);
+                if (text) text.innerText = `GPS coordinates acquired (${lat.toFixed(2)}°, ${lon.toFixed(2)}°).`;
+            }
+            lucide.createIcons();
+        }
+
+        function onLocationError(error) {
+            const iconBox = document.getElementById('locationIconBox');
+            const pill = document.getElementById('locationStatusPill');
+            const text = document.getElementById('locationText');
+            const retryBtn = document.getElementById('retryLocationBtn');
+
+            if (iconBox) iconBox.className = "w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 mt-0.5";
+            if (pill) {
+                pill.innerText = "Permission Needed";
+                pill.className = "text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-semibold border border-rose-500/30";
+            }
+
+            let msg = "Location permission was denied.";
+            if (error && error.code === error.TIMEOUT) msg = "Location request timed out.";
+            else if (error && error.code === error.POSITION_UNAVAILABLE) msg = "Position unavailable.";
+
+            if (text) text.innerText = `${msg} Click 'Allow Location' to detect your farming district.`;
+            if (retryBtn) retryBtn.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
         // LiveKit Connection Handler
         async function startCall() {
-            const phone = document.getElementById('phoneInput').value.trim() || "+919876543210";
-            const name = document.getElementById('nameInput').value.trim() || "Farmer";
+            const phone = document.getElementById('phoneInput').value.trim() || currentFarmerPhone || "+919876543210";
+            const rawName = document.getElementById('nameInput').value.trim();
+            const name = rawName; // if empty, backend & agent knows it's a new farmer needing name
             const startBtn = document.getElementById('startCallBtn');
             const badge = document.getElementById('callStatusBadge');
+
+            if (name) {
+                localStorage.setItem('agrisathi_farmer_name', name);
+            }
 
             startBtn.disabled = true;
             startBtn.classList.add('opacity-50');
@@ -965,6 +1244,8 @@
         }, 5000);
 
         // Initial fetch
+        initBrowserSession();
+        requestLocationPermission();
         loadDashboardData();
     </script>
 </body>

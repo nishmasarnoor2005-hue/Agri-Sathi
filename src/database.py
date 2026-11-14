@@ -35,10 +35,20 @@ class FarmerDB:
                     place TEXT,
                     state TEXT,
                     crops TEXT,
+                    latitude REAL,
+                    longitude REAL,
                     preferred_language TEXT DEFAULT 'hindi',
                     registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
+            
+            # Migration check: Ensure latitude & longitude columns exist in older database files
+            cursor.execute("PRAGMA table_info(farmers)")
+            cols = [row[1] for row in cursor.fetchall()]
+            if "latitude" not in cols:
+                cursor.execute("ALTER TABLE farmers ADD COLUMN latitude REAL")
+            if "longitude" not in cols:
+                cursor.execute("ALTER TABLE farmers ADD COLUMN longitude REAL")
             
             # Table 2: Conversations
             cursor.execute('''
@@ -79,6 +89,8 @@ class FarmerDB:
                 "name": farmer['name'],
                 "place": farmer['place'],
                 "state": farmer['state'],
+                "latitude": farmer['latitude'] if 'latitude' in farmer.keys() else None,
+                "longitude": farmer['longitude'] if 'longitude' in farmer.keys() else None,
                 "crops": farmer['crops'],
                 "preferred_language": farmer['preferred_language'] or 'hindi',
                 "history": summaries
@@ -94,6 +106,26 @@ class FarmerDB:
             ''', (phone, name, place, state, crops, language))
             conn.commit()
             logger.info(f"Farmer {name} ({phone}) registered/updated in {place}, {state}")
+
+    def update_farmer_location(self, phone: str, place: str, state: str = "", lat: float = None, lon: float = None):
+        """Stores or updates the farmer's registered location and coordinates."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT phone, name FROM farmers WHERE phone = ?", (phone,))
+            row = cursor.fetchone()
+            if row:
+                cursor.execute('''
+                    UPDATE farmers
+                    SET place = ?, state = ?, latitude = ?, longitude = ?
+                    WHERE phone = ?
+                ''', (place, state, lat, lon, phone))
+            else:
+                cursor.execute('''
+                    INSERT INTO farmers (phone, name, place, state, latitude, longitude, preferred_language)
+                    VALUES (?, '', ?, ?, ?, ?, 'hindi')
+                ''', (phone, place, state, lat, lon))
+            conn.commit()
+            logger.info(f"Updated registered location for {phone}: {place}, {state} (lat: {lat}, lon: {lon})")
 
     def save_farmer_name(self, phone: str, name: str):
         """Saves or updates just the farmer's name, inserting a row if new."""

@@ -146,11 +146,14 @@ async def get_live_weather(
     backup_key = Config.WEATHER_API_KEY or "30e1bb5017240d0ab32be68eea525ba1"
 
     # Default location from profile if blank
+    coords_res = None
     if not location or location.strip() == "":
         phone = context.session.userdata.get("phone", "")
         farmer = db.get_farmer(phone) if phone else None
         if farmer and farmer.get("place"):
             location = farmer["place"]
+            if farmer.get("latitude") and farmer.get("longitude"):
+                coords_res = (farmer["latitude"], farmer["longitude"], farmer["place"].title())
         else:
             location = "Delhi"
 
@@ -158,7 +161,8 @@ async def get_live_weather(
     logger.info(f"Fetching agricultural weather & soil data for: {loc_clean}")
 
     # 1. Primary: Specialized AgroMonitoring API (Weather + Soil Moisture & Temp)
-    coords_res = resolve_coordinates(loc_clean)
+    if not coords_res:
+        coords_res = resolve_coordinates(loc_clean)
     if coords_res:
         lat, lon, display_city = coords_res
         try:

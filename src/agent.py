@@ -87,22 +87,37 @@ async def entrypoint(ctx: JobContext):
 
     farmer_profile = db.get_farmer(phone)
     session_language = "english"
-    if farmer_profile:
+    farmer_name = (farmer_profile.get('name') or "").strip() if farmer_profile else ""
+    farmer_place = (farmer_profile.get('place') or "").strip() if farmer_profile else ""
+    farmer_state = (farmer_profile.get('state') or "").strip() if farmer_profile else ""
+    loc_str = f"{farmer_place}, {farmer_state}".strip(", ")
+
+    if farmer_profile and farmer_name and farmer_name.lower() != "farmer":
         history = "\n- ".join(farmer_profile['history'][-5:]) if farmer_profile['history'] else "No history."
         lang = farmer_profile.get('preferred_language', 'English')
         session_language = lang.lower() if lang else "english"
-        assistant.instructions = SYSTEM_PROMPT + f"\n\n## User: {farmer_profile['name']}\n- Location: {farmer_profile['place']}\n- Past: {history}\n- Language: {lang}"
+        loc_display = loc_str or "Location not set"
+        assistant.instructions = (
+            SYSTEM_PROMPT
+            + f"\n\n## Returning Farmer Profile:\n- Name: {farmer_name}\n- Registered Location: {loc_display}\n- Past Interactions:\n- {history}\n- Language: {lang}"
+        )
     else:
-        assistant.instructions = SYSTEM_PROMPT + "\n\n## Status: New User. Greet in English/Neutral and detect language."
+        loc_note = f"\n- Registered Location Detected: {loc_str}" if loc_str else ""
+        assistant.instructions = (
+            SYSTEM_PROMPT
+            + f"\n\n## Status: NEW FARMER (New Browser Session).\n- CRITICAL REQUIREMENT: You DO NOT know the caller's name yet.{loc_note}\n- You MUST first ask the caller for their name: 'Hello! I am AgriSathi. May I know your name please?'\n- When the caller speaks their name, IMMEDIATELY call `save_caller_name(name=...)` to save it to their profile, and greet them warmly as [Name] ji."
+        )
 
     session.userdata["phone"] = phone
     session.userdata["language"] = session_language
+    session.userdata["place"] = farmer_place
+    session.userdata["state"] = farmer_state
 
-    # Immediately greet caller: ask name
-    if farmer_profile and farmer_profile.get('name'):
-        greeting_text = f"Hello {farmer_profile['name']} ji! Welcome back to AgriSathi. How can I help you today?"
+    # Greet caller: if new farmer without name, ask for name immediately; if returning, greet by name
+    if farmer_name and farmer_name.lower() != "farmer":
+        greeting_text = f"Hello {farmer_name} ji! Welcome back to AgriSathi. How can I help you today?"
     else:
-        greeting_text = "Hello! I am AgriSathi. May I know your name?"
+        greeting_text = "Hello! I am AgriSathi. May I know your name please?"
 
     session.say(greeting_text, allow_interruptions=True)
 
